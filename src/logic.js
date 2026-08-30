@@ -76,6 +76,17 @@ export class LogicHandler {
         return todo
     };
 
+    editTodo = (todoID, title, description, dueDate, priority) => {
+        for (const todo of this.todos){
+            if (todoID !== todo.id) continue;
+            todo.title = title;
+            todo.description = description;
+            todo.due = dueDate;
+            todo.priority = priority;
+            return;
+        }
+    }
+
     deleteTodo = (todoId) => {
         for (const todo of this.todos){
             if (todoId !== todo.id) continue;

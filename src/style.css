@@ -1,0 +1,146 @@
+p{margin: 0; display: inline;}
+
+body{
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+header{
+    border: 1px solid orange;
+    width: min(50rem, 100%);
+    text-align: end;
+}
+
+.container{
+    border: 1px solid blue;
+    width: min(50rem, 100%);
+    height: min(30rem, 90%);
+    display: flex;
+    gap: 1rem;
+}
+
+section.projects{
+    border: 1px solid red;
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+section.todos{
+    border: 1px solid green;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.current-project{
+    border: 1px solid orange;
+    display: flex;
+    flex-direction: column;
+}
+
+.current-project > .footer {
+    display: flex;
+}
+
+.current-project > .footer > p{
+    margin-right: auto;
+}
+
+.project-tab{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-grow: 1;
+}
+
+.search.projects{
+    border: 1px solid black;
+    width: 85%;
+    align-self: center;
+}
+
+.project-list{
+    border: 1px solid green;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.project-item{
+    border: 1px solid red;
+    display: flex;
+}
+
+.project-item > .name{
+    margin-right: auto;
+}
+
+.filter-bar{
+    border: 1px solid purple;
+    display: flex;
+}
+
+.filter-buttons{
+    border: 1px solid red;
+    display: flex;
+}
+
+.todo-list{
+    border: 1px solid orange;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.todo-item{
+    border: 1px solid black;
+    display: flex;
+}
+
+.priority-bar{
+    width: 10px;
+}
+
+.priority-bar.low{
+    background-color: green;
+}
+
+.priority-bar.mid{
+    background-color: yellow;
+}
+
+.priority-bar.high{
+    background-color: red;
+}
+
+.todo-body{
+    border: 1px solid blue;
+    display: flex;
+    width: 100%;
+}
+
+.name-and-date{
+    margin-right: auto;
+}
+
+.is-open{
+    display: flex;
+    flex-direction: column;
+}
+
+.project-modal .heading,
+.todo-modal .heading{
+    text-align: center;
+}
+
+.modal-label{
+    display: flex;
+    flex-direction: column;
+}
