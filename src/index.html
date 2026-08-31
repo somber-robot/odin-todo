@@ -21,16 +21,7 @@
                     </div>
                 </div>
                 <input type="text" class="search projects" placeholder="Search projects...">
-                <div class="project-list">
-                    <div class="project-item">
-                        <p class="name">Moving</p>
-                        <p class="todo-count">3</p>
-                    </div>
-                    <div class="project-item selected">
-                        <p class="name">Default Project</p>
-                        <p class="todo-count">2</p>
-                    </div>
-                </div>
+                <div class="project-list"></div>
             </div>
             <button class="add-project">Add Project</button>
         </section>
@@ -40,44 +31,12 @@
                     <button class="filter-button priority low active">Low</button>
                     <button class="filter-button priority mid active">Mid</button>
                     <button class="filter-button priority high active">High</button>
-                    <button class="filter-icon status incomplete active">Not Done</button>
-                    <button class="filter-icon status complete active">Done</button>
+                    <button class="filter-button status incomplete active">Not Done</button>
+                    <button class="filter-button status complete active">Done</button>
                 </div>
                 <input type="text" class="search todos" placeholder="Search todos...">
             </div>
-            <div class="todo-list">
-                <div class="todo-item">
-                    <div class="priority-bar low"></div>
-                    <div class="todo-body">
-                        <div class="name-and-date">
-                            <p class="name">Buy milk</p>
-                            <p class="date">31/08/2026</p>
-                        </div>
-                        <div class="todo-buttons">
-                            <button class="toggle">Toggle Status</button>
-                            <button class="edit">Edit</button>
-                            <button class="move">Move</button>
-                            <button class="delete">Delete</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="todo-item expanded">
-                    <div class="priority-bar mid"></div>
-                    <div class="todo-body">
-                        <div class="name-and-date">
-                            <p class="name">Wash car</p>
-                            <p class="date">31/09/2026</p>
-                        </div>
-                        <div class="todo-buttons">
-                            <button class="toggle">Toggle Status</button>
-                            <button class="edit">Edit</button>
-                            <button class="move">Move</button>
-                            <button class="delete">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="todo-list"></div>
             <div class="footer">
                 <button class="add-todo">Add Todo</button>
                 <button class="reset-todos">Reset Todos</button>
@@ -85,54 +44,51 @@
             </div>
         </section>
     </div>
-    <dialog class="project-modal">
-        <p class="heading">Create New Project</p>
+    <dialog class="project-modal modal">
+        <p class="heading">Add New Project</p>
         <label for="project-name" class="modal-label">Name
-            <input type="text" id="project-name" placeholder="Enter project name...">
+            <input type="text" id="project-name" class="modal-input"  placeholder="Enter project name...">
         </label>
         <label for="project-summary" class="modal-label">Description
-            <input type="text" id="project-summary" placeholder="Enter project description...">
+            <input type="text" id="project-summary" class="modal-input"  placeholder="Enter project description...">
         </label>
         <button class="confirm">Confirm</button>
     </dialog>
-    <dialog class="todo-modal">
+    <dialog class="todo-modal modal">
         <p class="heading">Edit Todo</p>
         <label for="todo-title"class="modal-label">Title
-            <input type="text" id="todo-title" placeholder="Enter todo name...">
+            <input type="text" id="todo-title" class="modal-input" placeholder="Enter todo name...">
         </label>
         <label for="todo-description" class="modal-label">Description
-            <input type="text" id="todo-description" placeholder="Enter todo description...">
+            <input type="text" id="todo-description" class="modal-input" placeholder="Enter todo description...">
         </label>
         <label for="todo-date" class="modal-label">Due Date
-            <input type="date" id="todo-date">
+            <input type="date" id="todo-date" class="modal-input">
         </label>
         <label for="todo-priority" class="modal-label">Priority
-            <label for="low">
-                <input type="radio" name="todo-priority" id="low" value="low">
-                Low
-            </label>
-            <label for="mid">
-                <input type="radio" name="todo-priority" id="mid" value="mid">
-                Mid
-            </label>
-            <label for="high">
-                <input type="radio" name="todo-priority" id="high" value="high">
-                High
-            </label>
+            <select id="todo-priority" class="modal-input">
+                <option value="" selected disabled hidden></option>
+                <option value="low">Low</option>
+                <option value="mid">Mid</option>
+                <option value="high">High</option>
+            </select>
         </label>
         <button class="confirm">Confirm</button>
     </dialog>
-    <dialog class="move-todo">
+    <dialog class="move-todo modal">
         <p>Move</p>
-        <p class="todo-title">Buy milk from store</p>
+        <p class="todo-title"></p>
         <p>From</p>
-        <p class="project-name">Household tasks</p>
+        <p class="project-name"></p>
         <p>To</p>
-        <select class="project-dropdown">
-            <option value="dui-ubrhg-hbgh">Moving</option>
-            <option value="rti-utfnj-aldj">Default Project</option>
+        <select class="project-dropdown modal-input">
+            <option value="" selected disabled hidden></option>
         </select>
         <button class="confirm">Confirm</button>
+    </dialog>
+    <dialog class="other modal">
+        <p class="other-message"></p>
+        <button>Ok</button>
     </dialog>
 </body>
 </html>

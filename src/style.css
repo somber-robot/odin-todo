@@ -47,6 +47,7 @@ section.todos{
 
 .current-project > .footer {
     display: flex;
+    align-items: center;
 }
 
 .current-project > .footer > p{
@@ -104,6 +105,10 @@ section.todos{
     display: flex;
 }
 
+.todo-item.complete{
+    opacity: 50%;
+}
+
 .priority-bar{
     width: 10px;
 }
@@ -123,11 +128,49 @@ section.todos{
 .todo-body{
     border: 1px solid blue;
     display: flex;
+    flex-direction: column;
     width: 100%;
 }
 
-.name-and-date{
-    margin-right: auto;
+.todo-body .header{
+    display: flex;
+}
+
+.todo-info{
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.todo-body .details {  
+    display: none;
+}
+
+.expanded .todo-body .details{
+    display: flex;
+}
+
+.todo-buttons{
+    display: flex;
+    height: 30px;
+}
+
+.details{
+    display: flex;
+    gap: 1rem;
+}
+
+.details .description {
+    flex-grow: 1;
+}
+
+.details .todo-buttons{
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.project-modal .is-open{
+    display: flex;
 }
 
 .is-open{
@@ -143,4 +186,27 @@ section.todos{
 .modal-label{
     display: flex;
     flex-direction: column;
+}
+
+.required {
+    border: 1px solid red;
+}
+
+.selected {
+    background-color: rgba(255, 0, 0, 0.347);
+}
+
+.filtered {
+    display: none;
+}
+
+.filter-button{
+    border: 1px solid black;
+    background-color: white;
+    color: black;
+}
+
+.filter-button.active{
+    background-color: black;
+    color: white;
 }

@@ -7,15 +7,12 @@ class Todo {
     constructor(title, description, dueDate, priority, projectID){
         this.title = title;
         this.description = description;
-        this._due = dueDate;
+        this.due = dueDate;
         this.priority = priority;
         this.status = Status.INCOMPLETE;
         this.id = crypto.randomUUID();
         this.projectID = projectID;
     }
-
-    set due(date) { this._due = format(date, "MM/dd/yyyy"); }
-    get due() { return this._due; }
 }
 
 class Project {
@@ -33,6 +30,8 @@ export class LogicHandler {
         this.currentProject = this.createProject("default", "Generic summary");
         this.todos = [];
         this.filters = [...Object.values(Priority), ...Object.values(Status)];
+    
+        this.createTodo("examle task", "this is a basic example todo.", new Date(), Priority.LOW);
     }
 
     createProject = (name, summary) => {
@@ -46,6 +45,7 @@ export class LogicHandler {
             if (projectID !== project.id) continue;
             const index = this.projects.indexOf(project);
             this.projects.splice(index, 1);
+            this.todos = this.todos.filter((todo) => {return todo.projectID !== projectID});
             if (this.currentProject === project) 
                 this.currentProject = this.projects[0];
             return;
@@ -68,6 +68,15 @@ export class LogicHandler {
             this.currentProject = project;
             return;
         }
+    }
+
+    getTodoCount = (projectID) => {
+        let count = 0;
+        for (const todo of this.todos){
+            if (todo.projectID !== projectID) continue;
+            count++;
+        }
+        return count;
     }
 
     createTodo = (title, description, dueDate, priority) => {
@@ -98,7 +107,7 @@ export class LogicHandler {
 
     toggleTodoStatus = (todoID) => {
         for (const todo of this.todos){
-            if (todoId !== todo.id) continue;
+            if (todoID !== todo.id) continue;
             todo.status = (todo.status == Status.INCOMPLETE) ? Status.COMPLETE : Status.INCOMPLETE;
             return;
         }
@@ -112,6 +121,16 @@ export class LogicHandler {
         }
     }
 
+    validateTodo = (todoID, filter) => {
+        for (const todo of this.todos){
+            if (todo.id !== todoID) continue;
+            if (Object.values(Priority).includes(filter))
+                return todo.priority === filter;
+            else
+                return todo.status === filter;
+        }
+    }
+
     resetTodos = () => {
         for (const todo of this.todos){
             if (todo.projectID !== this.currentProject.id) continue;
@@ -121,7 +140,7 @@ export class LogicHandler {
     }
 
     clearTodos = () => {
-        this.todos = this.todos.filter((todo) => {return todo.projectID == this.currentProject.id});
+        this.todos = this.todos.filter((todo) => {return todo.projectID !== this.currentProject.id});
     }
 
     removeFilter = (type) => {
