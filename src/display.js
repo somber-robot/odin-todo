@@ -181,20 +181,7 @@ export const loadPage = (logic) => {
                 otherModal.showModal();
                 return;
             }
-            let items = document.querySelectorAll(".project-item");
-            for (const item of items){
-                if (item.dataset.id !== project.id) continue;
-                item.remove();
-                break;
-            }
-            logic.deleteProject(project.id);
-            for (const item of items){
-                if (item.dataset.id !== logic.currentProject.id) continue;
-                item.classList.add("selected");
-                break;
-            }
-            setCurrentBox(logic.currentProject);
-            populateTodos();
+            deleteModal.showModal();
         });
         appendChildren(footer, [newEdit, newDel]);
     };
@@ -203,6 +190,30 @@ export const loadPage = (logic) => {
     const otherOk = document.querySelector(".other button");
     otherOk.addEventListener("click", () => {
         otherModal.close();
+    });
+
+    const deleteModal = document.querySelector(".delete-project");
+    const deleteCancel = document.querySelector(".delete-project .buttons .cancel");
+    deleteCancel.addEventListener("click", () => {
+        deleteModal.close();
+    });
+    const deleteConfirm = document.querySelector(".delete-project .buttons .delete");
+    deleteConfirm.addEventListener("click", () => {
+        let items = document.querySelectorAll(".project-item");
+        for (const item of items){
+            if (item.dataset.id !== logic.currentProject.id) continue;
+            item.remove();
+            break;
+        }
+        logic.deleteProject(logic.currentProject.id);
+        for (const item of items){
+            if (item.dataset.id !== logic.currentProject.id) continue;
+            item.classList.add("selected");
+            break;
+        }
+        setCurrentBox(logic.currentProject);
+        populateTodos();
+        deleteModal.close();
     });
 
     const todoModal = document.querySelector(".todo-modal");
