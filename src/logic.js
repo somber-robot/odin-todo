@@ -3,40 +3,77 @@ import { format } from "date-fns";
 export const Priority = Object.freeze({LOW:"low", MID:"mid", HIGH:"high"});
 export const Status = Object.freeze({INCOMPLETE:"incomplete", COMPLETE: "complete"});
 
-class Todo {
-    constructor(title, description, dueDate, priority, projectID){
-        this.title = title;
-        this.description = description;
-        this.due = dueDate;
-        this.priority = priority;
-        this.status = Status.INCOMPLETE;
-        this.id = crypto.randomUUID();
-        this.projectID = projectID;
-    }
-}
+const Todo = (title, description, due, priority, projectID) => {
+    return {title, description, due, priority, projectID,
+        status: Status.INCOMPLETE,
+        id: crypto.randomUUID()
+    };
+};
 
-class Project {
-    constructor(name, summary){
-        this.name = name;
-        this.summary = summary;
-        this.created = format(new Date(), "MM/dd/yyyy");
-        this.id = crypto.randomUUID();
-    }
-}
+const Project = (name, summary) => {
+    return {name, summary,
+        created: format(new Date(), "MM/dd/yyyy"),
+        id: crypto.randomUUID()
+    };
+};
 
 export class LogicHandler {    
     constructor () {
-        this.projects = [];
-        this.currentProject = this.createProject("default", "Generic summary");
-        this.todos = [];
-        this.filters = [...Object.values(Priority), ...Object.values(Status)];
-    
-        this.createTodo("examle task", "this is a basic example todo.", new Date(), Priority.LOW);
+        // localStorage.clear();
+        this.init();
+    }
+
+    storageFree = () => {
+        let storage;
+        try{
+            storage = window.localStorage;
+            const x = "__storage_test__";
+            storage.setItem(x,x);
+            storage.removeItem(x);
+            return true;
+        } catch (E) {
+            return (
+                e instanceof DOMException &&
+                e.name === "QuotaExceededError" &&
+                storage &&
+                storage.length !== 0
+            );
+        };
+    }
+
+    init = () => {
+        if (!this.storageFree()) return;
+        if (localStorage.getItem("projects")){
+            console.log("load")
+            this.loadData("projects", "todos", "filters", "currentProject");
+        }else{
+            console.log("new");
+            this.projects = [];
+            this.currentProject = this.createProject("default", "Generic summary");
+            this.todos = [];
+            this.filters = [...Object.values(Priority), ...Object.values(Status)];
+
+            this.createTodo("examle task", "this is a basic example todo.", new Date(), Priority.LOW);
+            this.saveData("projects", "todos", "filters", "currentProject");
+        }
+    }
+
+    saveData = (...types) => {
+        for (const type of types){
+            localStorage[type] = JSON.stringify(this[type]);
+        }
+    }
+
+    loadData = (...types) => {
+        for (const type of types){
+            this[type] = JSON.parse(localStorage[type]);
+        }
     }
 
     createProject = (name, summary) => {
-        const project = new Project(name, summary);
+        const project = Project(name, summary);
         this.projects.push(project);
+        this.saveData("projects");
         return project;
     }
 
@@ -48,8 +85,9 @@ export class LogicHandler {
             this.todos = this.todos.filter((todo) => {return todo.projectID !== projectID});
             if (this.currentProject === project) 
                 this.currentProject = this.projects[0];
-            return;
+            break;
         }
+        this.saveData("projects", "currentProject");
     }
 
     editProject = (projectID, name, summary) => {
@@ -57,8 +95,9 @@ export class LogicHandler {
             if (projectID !== project.id) continue;
             project.name = name;
             project.summary = summary;
-            return;
+            break;
         }
+        this.saveData("projects");
     }
 
     selectProject = (projectID) => {
@@ -66,8 +105,9 @@ export class LogicHandler {
             if (projectID !== project.id) continue;
             if (project === this.currentProject) return;
             this.currentProject = project;
-            return;
+            break;
         }
+        this.saveData("currentProject");
     }
 
     getTodoCount = (projectID) => {
@@ -80,8 +120,9 @@ export class LogicHandler {
     }
 
     createTodo = (title, description, dueDate, priority) => {
-        const todo = new Todo(title, description, dueDate, priority, this.currentProject.id);
+        const todo = Todo(title, description, dueDate, priority, this.currentProject.id);
         this.todos.push(todo);
+        this.saveData("todos");
         return todo
     };
 
@@ -92,8 +133,9 @@ export class LogicHandler {
             todo.description = description;
             todo.due = dueDate;
             todo.priority = priority;
-            return;
+            break;
         }
+        this.saveData("todos");
     }
 
     deleteTodo = (todoId) => {
@@ -101,24 +143,29 @@ export class LogicHandler {
             if (todoId !== todo.id) continue;
             const index = this.todos.indexOf(todo);
             this.todos.splice(index, 1);
-            return;
+            break;
         }
+        this.saveData("todos");
     }
 
     toggleTodoStatus = (todoID) => {
         for (const todo of this.todos){
             if (todoID !== todo.id) continue;
             todo.status = (todo.status == Status.INCOMPLETE) ? Status.COMPLETE : Status.INCOMPLETE;
-            return;
+            break;
         }
+        this.saveData("todos");
     }
 
     moveTodo = (todoID, targetID) => {
         for (const todo of this.todos){
             if (todoID !== todo.id) continue;
             todo.projectID = targetID;
-            return;
+            console.log("here");
+            break;
         }
+        this.saveData("todos");
+        console.log(this.todos);
     }
 
     validateTodo = (todoID, filter) => {
@@ -135,22 +182,26 @@ export class LogicHandler {
         for (const todo of this.todos){
             if (todo.projectID !== this.currentProject.id) continue;
             todo.status = Status.INCOMPLETE;
-            return;
+            break;
         }
+        this.saveData("todos");
     }
 
     clearTodos = () => {
         this.todos = this.todos.filter((todo) => {return todo.projectID !== this.currentProject.id});
+        this.saveData("todos");
     }
 
     removeFilter = (type) => {
         if (!this.filters.includes(type)) return;
         const index = this.filters.indexOf(type);
         this.filters.splice(index, 1);
+        this.saveData("filters");
     }
 
     addFilter = (type) => {
         if (this.filters.includes(type)) return;
         this.filters.push(type);
+        this.saveData("filters");
     }
 }

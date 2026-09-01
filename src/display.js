@@ -181,22 +181,23 @@ export const loadPage = (logic) => {
                 otherModal.showModal();
                 return;
             }
+            let name = document.querySelector(".delete-project .name");
+            name.innerText = logic.currentProject.name;
             deleteModal.showModal();
         });
         appendChildren(footer, [newEdit, newDel]);
     };
     
     const otherModal = document.querySelector(".other");
-    const otherOk = document.querySelector(".other button");
-    otherOk.addEventListener("click", () => {
-        otherModal.close();
-    });
+
+    for (const button of document.querySelectorAll(".just-close")){
+        button.addEventListener("click", () => {
+            let modal = button.closest(".modal");
+            modal.close();
+        });
+    }
 
     const deleteModal = document.querySelector(".delete-project");
-    const deleteCancel = document.querySelector(".delete-project .buttons .cancel");
-    deleteCancel.addEventListener("click", () => {
-        deleteModal.close();
-    });
     const deleteConfirm = document.querySelector(".delete-project .buttons .delete");
     deleteConfirm.addEventListener("click", () => {
         let items = document.querySelectorAll(".project-item");
@@ -422,10 +423,20 @@ export const loadPage = (logic) => {
         let todos = logic.todos.filter((todo) => {return todo.projectID === logic.currentProject.id})
                                .filter((todo) => {return logic.filters.includes(todo.priority)
                                                       && logic.filters.includes(todo.status);})
-        for (const todo of todos){
-            createTodoItemUI(todo);
-        }
+        for (const todo of todos) createTodoItemUI(todo);
     };
+
+    const clearModal = document.querySelector(".clear-todos.modal"); 
+    const clearConfirm = document.querySelector(".clear-todos .delete");
+    clearConfirm.addEventListener("click", () => {
+        logic.clearTodos();
+        let list = document.querySelector(".todo-list");
+        for (const todo of document.querySelectorAll(".todo-item")){
+            list.removeChild(todo);
+        }
+        updateCurrentCount();
+        clearModal.close();
+    });  
 
     const moveModal = document.querySelector(".move-todo");
     const confirmMove = document.querySelector(".move-todo .confirm");
@@ -435,23 +446,12 @@ export const loadPage = (logic) => {
             targetBox.classList.add("required");
             return;
         }
-
-        for (const todo of logic.todos){
-            if (todo.id !== moveModal.dataset.todoID) continue;
-            console.log("moved");
-            todo.projectID = targetBox.value;
-            break;
-        }
+        logic.moveTodo(moveModal.dataset.todoID, targetBox.value);
         populateTodos();
-
-        let current = document.querySelector(`[data-id="${logic.currentProject.id}"] .todo-count`);
-        console.log(current);
-        current.innerText = +current.innerText - 1;
+        updateCurrentCount();
         let target = document.querySelector(`[data-id="${targetBox.value}"] .todo-count`);
         console.log(target);
         target.innerText = +target.innerText + 1;
-
-        updateCurrentCount();
         moveModal.close();
     });
 
@@ -482,12 +482,10 @@ export const loadPage = (logic) => {
 
     const clearTodos = document.querySelector(".clear-todos");
     clearTodos.addEventListener("click", () => {
-        logic.clearTodos();
-        let list = document.querySelector(".todo-list");
-        for (const todo of document.querySelectorAll(".todo-item")){
-            list.removeChild(todo);
-        }
-        updateCurrentCount();
+        if (!logic.todos.length) return;
+        let name = document.querySelector(".clear-todos .name");
+        name.innerText = logic.currentProject.name;
+        clearModal.showModal();
     });
 
     // add event listeners to filter bar button
@@ -551,7 +549,7 @@ export const loadPage = (logic) => {
         populateTodos();
     });
 
-    // load projects and todos from logic handler
+    // load projects, todos and filters from logic handler
     for (const project of logic.projects){
         createProjectItemUI(project);
     }
@@ -562,4 +560,10 @@ export const loadPage = (logic) => {
         item.classList.add("selected");
     }
     populateTodos();
+    for (const filter of document.querySelectorAll(".filter-button")){
+        if (logic.filters.includes(filter.dataset.filter))
+            filter.classList.add("active");
+        else
+            filter.classList.remove("active");
+    }
 };

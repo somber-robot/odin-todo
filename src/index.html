@@ -28,11 +28,11 @@
         <section class="todos">
             <div class="filter-bar">
                 <div class="filter-buttons">
-                    <button class="filter-button priority low active">Low</button>
-                    <button class="filter-button priority mid active">Mid</button>
-                    <button class="filter-button priority high active">High</button>
-                    <button class="filter-button status incomplete active">Not Done</button>
-                    <button class="filter-button status complete active">Done</button>
+                    <button class="filter-button priority low active" data-filter="low">Low</button>
+                    <button class="filter-button priority mid active" data-filter="mid">Mid</button>
+                    <button class="filter-button priority high active" data-filter="high">High</button>
+                    <button class="filter-button status incomplete active" data-filter="incomplete">Not Done</button>
+                    <button class="filter-button status complete active" data-filter="complete">Done</button>
                 </div>
                 <input type="text" class="search todos" placeholder="Search todos...">
             </div>
@@ -59,7 +59,7 @@
         <p class="name">default</p>
         <p> and all of its tasks?</p>
         <div class="buttons">
-            <button class="cancel">Cancel</button>
+            <button class="just-close">Cancel</button>
             <button class="delete">Delete</button>
         </div>
     </dialog>
@@ -95,9 +95,17 @@
         </select>
         <button class="confirm">Confirm</button>
     </dialog>
+    <dialog class="clear-todos modal">
+        <p>Are you sure you want to delete all tasks in</p>
+        <p class="name">default</p>
+        <div class="buttons">
+            <button class="just-close">Cancel</button>
+            <button class="delete">Delete</button>
+        </div>
+    </dialog>
     <dialog class="other modal">
         <p class="other-message"></p>
-        <button>Ok</button>
+        <button class="just-close">Ok</button>
     </dialog>
 </body>
 </html>
