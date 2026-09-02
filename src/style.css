@@ -1,3 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
+
+:root{
+    --section-bg: rgba(250, 235, 215, 0.5);
+    --section-shadow: rgba(0, 0, 0, 0.35) 0px 1px 2px;
+    --section-br: 0.5rem;
+    --tab-highlight: rgba(255, 226, 188, 0.378);
+    --text: rgb(202, 165, 116);
+    --text-focus: rgb(148, 102, 43);
+    --text-br: 0.2rem;
+    --dark-brown: rgb(168, 95, 0);
+    --darker-brown: rgb(122, 69, 0);
+
+    --sans-serif: "Red Hat Display", Arial, Helvetica, sans-serif;
+    --serif: "Cormorant Garamond", 'Times New Roman', Times, serif;
+}
+
 p{margin: 0; display: inline;}
 
 body{
@@ -7,24 +24,47 @@ body{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-image: url("./bg.jpg");
+    background-size: contain;
+}
+
+.body {
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    display: flex;
+    flex-direction: column;
+    height: min(30rem, 90%);
+    background-color: white;   
+    border-radius: 1rem;
+    padding: 1rem;
 }
 
 header{
-    border: 1px solid orange;
-    width: min(50rem, 100%);
+    background-color: var(--dark-brown);
     text-align: end;
+    color: white;
+    border-radius: 0.4rem;
+    box-shadow: var(--section-shadow);
+    padding: 0.5rem 1rem;
+    font-weight: 1000;
+    font-size: 1.3rem;
+    width: 10.2rem;
+    margin-left: auto;
+    margin-bottom: 0.5rem;
+    font-family: var(--serif);
+}
+
+button {
+    font-family: var(--sans-serif);
 }
 
 .container{
-    border: 1px solid blue;
     width: min(50rem, 100%);
-    height: min(30rem, 90%);
+    height: 100%;
     display: flex;
     gap: 1rem;
 }
 
 section.projects{
-    border: 1px solid red;
     width: 30%;
     display: flex;
     flex-direction: column;
@@ -32,80 +72,296 @@ section.projects{
 }
 
 section.todos{
-    border: 1px solid green;
     width: 70%;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
+button svg {
+    width: 1.2rem;
+}
+
+button.edit,
+button.delete,
+button.move,
+button.toggle{
+    background: none;
+    border: none;
+    padding: 0.1rem;
+}
+
+button.edit:hover,
+button.delete:hover,
+button.move:hover,
+button.toggle:hover{
+    opacity: 50%;
+    cursor: pointer;
+}
+
 .current-project{
-    border: 1px solid orange;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--section-bg);
+    border-radius: var(--section-br);
+    padding: 0.5rem;
+    word-wrap: break-word;
+    box-shadow: var(--section-shadow);
+    width: 10rem;
+    font-family: var(--serif);
+}
+
+.current-project .header{
+    height: 3.5rem;
     display: flex;
     flex-direction: column;
 }
 
-.current-project > .footer {
+.current-project .name{
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.current-project .created{
+    font-size: 0.8rem;
+    opacity: 80%;
+    margin-top: 0.2rem;
+}
+
+.current-project .footer {
     display: flex;
     align-items: center;
+    margin-top: 0.7rem;
 }
 
-.current-project > .footer > p{
+.current-project .footer p{
     margin-right: auto;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 0.9rem;
 }
 
-.project-tab{
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex-grow: 1;
-}
-
-.search.projects{
-    border: 1px solid black;
-    width: 85%;
+input[type="text"], 
+textarea{
+    border: 1px solid var(--text);
+    width: 90%;
     align-self: center;
+    border-radius: var(--text-br);
+    padding: 0.2rem 0.4rem;
+    box-shadow: var(--section-shadow);
+}
+
+input[type="text"]::placeholder,
+textarea::placeholder{
+    opacity: 70%;
+    font-family: var(--sans-serif);
+}
+
+input[type="text"]:focus-within, 
+textarea::placeholder:focus-within{
+    outline: none;
+    border: 1px solid var(--text-focus);
 }
 
 .project-list{
-    border: 1px solid green;
     overflow-y: auto;
     flex-grow: 1;
+    background-color: var(--section-bg);
+    border-radius: var(--section-br);
+    box-shadow: var(--section-shadow);
+    width: 11rem;
+    font-family: var(--serif);
 }
 
 .project-item{
-    border: 1px solid red;
+    border-bottom: 1px solid rgba(202, 165, 116, 0.258);
     display: flex;
+    padding: 0.47rem 0.5rem;
 }
 
-.project-item > .name{
+.project-item:hover,
+.project-item:focus-visible{
+    background-color: var(--tab-highlight);
+    cursor: pointer;
+}
+
+.project-item .name{
     margin-right: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 87%;
+}
+
+.project-item .todo-count{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 0.8rem;
+    margin-top: 3px;
+}
+
+.selected {
+    background-color: rgb(251, 211, 159);
+}
+
+.project-item:hover.selected,
+.project-item:focus-visible.selected{
+    background-color: rgb(251, 211, 159);
+}
+
+.add-project,
+.add-todo, 
+.reset-todos, 
+.delete-todos{
+    border: none;
+    border-radius: 0.5rem;
+    background-color: var(--dark-brown);
+    color: white;
+    padding: 0.5rem 0.7rem;
+    box-shadow: var(--section-shadow);
+}
+
+.add-project{
+    width: 6rem;
+}
+
+.add-project:hover,
+.add-todo:hover, 
+.reset-todos:hover, 
+.delete-todos:hover{
+    background-color: var(--darker-brown);
+    cursor: pointer;
+}
+
+.add-project:active,
+.add-todo:active, 
+.reset-todos:active,
+.delete-todos:active{
+    background-color: rgb(85, 48, 0);
 }
 
 .filter-bar{
-    border: 1px solid purple;
-    display: flex;
+    display: flex;  
+    gap: 0.5rem;  
 }
 
 .filter-buttons{
-    border: 1px solid red;
     display: flex;
+    background-color: var(--section-bg);
+    border-radius: 0.3rem;
+    box-shadow: var(--section-shadow);
+}
+
+.filter-button{
+    border: none;
+    background: none;
+    padding: 0.5rem 0.3rem;
+    color: rgba(0, 0, 0, 0.347);
+}
+
+.filter-button:nth-of-type(1){
+    padding-left: 0.5rem;
+    border-top-left-radius: 0.3rem;
+    border-bottom-left-radius: 0.3rem;
+}
+
+.filter-button:nth-last-of-type(1){
+    padding-right: 0.5rem;
+    border-top-right-radius: 0.3rem;
+    border-bottom-right-radius: 0.3rem;
+}
+
+.filter-button.active{
+    color: black;
+}
+
+.filter-button:hover{
+    cursor: pointer;
+    background-color: var(--tab-highlight);
 }
 
 .todo-list{
-    border: 1px solid orange;
+    background-color: var(--section-bg);
+    border-radius: var(--section-br);
+    box-shadow: var(--section-shadow);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    flex-grow: 1;
+    flex-grow: 1;    
+    height: 20rem;
+}
+
+.todo-list::-webkit-scrollbar{
+    width: 0.9rem;
+}
+
+.todo-list::-webkit-scrollbar-track{
+    border-top-right-radius: var(--section-br);
+    border-bottom-right-radius: var(--section-br);
+    background-color: rgba(255, 247, 237, 0.634);
+    border-left: 1px solid rgba(202, 165, 116, 0.258);
+}
+
+.todo-list::-webkit-scrollbar-thumb{
+    background-color: rgba(203, 147, 74, 0.447);
+
+    border: 4px solid transparent;
+    background-clip: padding-box;
+    border-radius: 10px;
 }
 
 .todo-item{
-    border: 1px solid black;
     display: flex;
+    border-bottom: 1px solid rgba(202, 165, 116, 0.258);
+    font-family: var(--serif);
 }
 
-.todo-item.complete{
+.todo-item .name{
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.todo-item .date{
+    opacity: 70%;
+    font-size: 0.8rem;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.todo-item:hover,
+.todo-item:focus-visible{
+    cursor: pointer;
+    background-color: var(--tab-highlight);
+}
+
+.todo-item.complete {
+    opacity: 30%;
+    border-bottom: 1px solid rgb(202, 165, 116);
+}
+
+
+.complete .name,
+.complete .date{
+    text-decoration: 1px line-through rgba(0, 0, 0, 0.76);
+}
+
+
+.no-desc{
+    opacity: 50%;
+    font-size: 0.8rem;
+}
+
+.no-todos{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 1.2rem;
+}
+
+.no-todos.hidden{
+    display: none;
+}
+
+.no-todos p {
     opacity: 50%;
 }
 
@@ -114,22 +370,22 @@ section.todos{
 }
 
 .priority-bar.low{
-    background-color: green;
+    background-color: rgb(97, 129, 97);
 }
 
 .priority-bar.mid{
-    background-color: yellow;
+    background-color: rgb(243, 243, 123);
 }
 
 .priority-bar.high{
-    background-color: red;
+    background-color: rgb(207, 82, 82);
 }
 
 .todo-body{
-    border: 1px solid blue;
     display: flex;
     flex-direction: column;
     width: 100%;
+    padding: 0.5rem;
 }
 
 .todo-body .header{
@@ -140,37 +396,41 @@ section.todos{
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    gap: 0.2rem;
 }
 
-.todo-body .details {  
+.expanded .header{
+    padding-bottom: 1rem;
+}
+
+.description {  
     display: none;
+    width: 23rem;
 }
 
-.expanded .todo-body .details{
-    display: flex;
+.expanded .description{
+    display: inline;
 }
 
 .todo-buttons{
     display: flex;
-    height: 30px;
+    gap: 0.4rem;
 }
 
-.details{
-    display: flex;
-    gap: 1rem;
+.todo-buttons button{
+    padding: 0;
+    margin-bottom: -3px;
 }
 
-.details .description {
-    flex-grow: 1;
+.todo-buttons .move{
+    margin-right: -3px;
 }
 
-.details .todo-buttons{
-    align-self: flex-end;
-    margin-left: auto;
-}
-
-.project-modal .is-open{
-    display: flex;
+.modal{
+    border: none;
+    border-radius: 0.7rem;
+    box-shadow: var(--section-shadow);
+    padding: 1.5rem;
 }
 
 .is-open{
@@ -178,35 +438,174 @@ section.todos{
     flex-direction: column;
 }
 
-.project-modal .heading,
-.todo-modal .heading{
-    text-align: center;
-}
-
 .modal-label{
     display: flex;
     flex-direction: column;
-}
-
-.required {
-    border: 1px solid red;
-}
-
-.selected {
-    background-color: rgba(255, 0, 0, 0.347);
 }
 
 .filtered {
     display: none;
 }
 
-.filter-button{
-    border: 1px solid black;
-    background-color: white;
+.modal{
+    gap: 0.7rem;
+}
+
+.modal .heading{
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--darker-brown);
+    text-align: center;
+    font-family: var(--sans-serif);
+}
+
+.modal input[type="text"]{
+    border: 1px solid var(--text);
+    border-radius: 0.2rem;
+    box-shadow: var(--section-shadow);
+}
+
+.modal input[type="text"]:focus-within,
+.modal textarea:focus-within{
+    border: 1px solid var(--text-focus);
+    outline: none;
+}
+
+.modal button {
+    background-color: var(--dark-brown);
+    border: none;
+    color: white;
+    padding: 0.3rem;
+    border-radius: 0.6rem;
+}
+
+.modal button:hover{
+    background-color: var(--darker-brown);
+    cursor: pointer;
+}
+
+textarea{
+    resize: none;
+    font-family: var(--sans-serif);
+}
+
+input {
+    font-family: var(--sans-serif);
+}
+
+input[type="date"],
+select{
+    border: 1px solid var(--text);
+    border-radius: var(--text-br);
+    width: 92.5%;
+    align-self: center;
+    box-shadow: var(--section-shadow);
+    padding: 0.2rem;
+}
+
+select{
+    width: 95%;
+}
+
+input[type="date"]:focus-within,
+select:focus-within{
+    outline: none;
+    border: 1px solid var(--text-focus);
+}
+
+.modal .empty{
+    color: hsla(0, 0%, 0%, 0.40);
+}
+
+.modal .empty option {
     color: black;
 }
 
-.filter-button.active{
-    background-color: black;
-    color: white;
+.modal input[type="text"].required,
+input[type="date"].required,
+select.required {
+    border: 1px solid red;
 }
+
+.todo-modal .confirm{
+    width: 95%;
+    align-self: center;
+}
+
+.move-todo{
+    gap: 0.2rem;
+    width: 10rem;
+}
+
+
+.move-todo .todo-title,
+.move-todo .project-name{
+    color: var(--dark-brown);
+    font-size: 1.1rem;
+}
+
+.move-todo .confirm{
+    margin-top: 0.6rem;
+    width: 95%;
+    align-self: center;
+}
+
+.confirm{
+    box-shadow: var(--section-shadow);
+}
+
+.search:focus-within {
+    outline: none;
+    border: 1px solid var(--text-focus);
+}
+
+.delete-project.modal .buttons,
+.clear-todos .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.delete-project.modal button,
+.clear-todos button{
+    box-shadow: var(--section-shadow);
+}
+
+.delete-project.modal button.delete,
+.clear-todos button.delete{
+    padding: 0.5rem 0;
+}
+
+.modal button.delete:hover{
+    opacity: 100%;
+}
+
+.modal .just-close{
+    background-color: antiquewhite;
+    color: black;
+}
+
+.modal .just-close:hover{
+    background-color: rgb(247, 222, 188);
+    color: black;
+}
+
+.delete-project.modal,
+.clear-todos {
+    text-align: center;
+    width: 10rem;
+    word-wrap: break-word;
+    font-family: var(--sans-serif);
+    font-size: 0.9rem;
+}
+
+.delete-project.modal .name,
+.clear-todos .name{
+    color: var(--dark-brown);
+}
+
+option{
+    background-color: antiquewhite;
+}
+

@@ -1,6 +1,5 @@
 import { Priority, Status } from "./logic.js";
 import svgs from "./svgs.json";
-import { format } from "date-fns";
 
 const appendChildren = (parent, children) => {
     for (const child of children){
@@ -15,7 +14,9 @@ const removeChildren = (parent, children) => {
 };
 
 export const loadPage = (logic) => {
-    // modal code
+    let selectInputs = document.querySelectorAll("select");
+    let dateInputs = document.querySelectorAll("input[type='date']");
+
     for (const modal of document.querySelectorAll(".modal")){
         modal.addEventListener("close", () => {
             modal.classList.remove("is-open", "create", "edit");
@@ -33,12 +34,16 @@ export const loadPage = (logic) => {
             }
             for (const option of remove) option.remove();
             select.value = "";
+            
+            for (const select of selectInputs) select.classList.add("empty");
+            for (const date of dateInputs) date.classList.add("empty"); 
+
         });
         modal.addEventListener("toggle", (e) => {
             if (e.newState !== "open") return;
             modal.classList.add("is-open");
         });
-        modal.addEventListener("click", (e) => {
+        modal.addEventListener("click", (event) => {
             const rect = modal.getBoundingClientRect();
             const isClickOutside = (
                 event.clientX < rect.left ||
@@ -47,6 +52,18 @@ export const loadPage = (logic) => {
                 event.clientY > rect.bottom
             );
             if (isClickOutside) modal.close();
+        });
+    }
+
+    for (const select of selectInputs){
+        select.addEventListener("change", () => {
+            select.classList.remove("empty")
+        })
+    }
+
+    for (const date of dateInputs){
+        date.addEventListener("change", () => {
+            date.classList.remove("empty");
         });
     }
 
@@ -61,7 +78,7 @@ export const loadPage = (logic) => {
 
     const projectSearch = document.querySelector(".search.projects");
     projectSearch.addEventListener("input", () => {
-        let filter = projectSearch.value.trim();
+        let filter = projectSearch.value.trim().toLowerCase();
         for (const item of document.querySelectorAll(".project-item")){
             let name = item.firstElementChild.innerText;
             if (name.includes(filter)) 
@@ -72,32 +89,32 @@ export const loadPage = (logic) => {
     });
 
     const projectConfirm = document.querySelector(".project-modal .confirm");
-    projectConfirm.addEventListener("click", () => {
+    projectConfirm.addEventListener("click", (e) => {
         let name = projectName.value.trim();
         if (name === ""){
             projectName.classList.add("required");
+            e.stopPropagation();
             return;
         } 
-        let summary = document.querySelector("#project-summary").value.trim();
         if (projectModal.classList.contains("create")){
-            createProjectItem(name, summary);
+            createProjectItem(name);
         } else 
         if (projectModal.classList.contains("edit")){
-            logic.editProject(logic.currentProject.id, name, summary);
-            setCurrentBox(logic.currentProject);
             for (const item of document.querySelectorAll(".project-item")){
-                if (item.dataset.id !== logic.currentProject.id) continue;
+                if (item.dataset.id !== logic.current) continue;
                 item.firstElementChild.innerText = name;
                 break;
             }
+            logic.editProject(name);
+            setCurrentBox(logic.getCurrentProject());
         }
         projectModal.close();
     });
 
     const projectList = document.querySelector(".project-list");
 
-    const createProjectItem = (projectName, summary) => {
-        let project = logic.createProject(projectName, summary);
+    const createProjectItem = (projectName) => {
+        let project = logic.createProject(projectName);
         return createProjectItemUI(project);
     };
 
@@ -113,8 +130,8 @@ export const loadPage = (logic) => {
         let todoCount = logic.getTodoCount(project.id);
         count.innerText = todoCount;
 
-        projectItem.addEventListener("click", () => {
-            let currentID = logic.currentProject.id;
+        const selectProject = () =>{
+            let currentID = logic.current;
             let projectID = projectItem.dataset.id
             if (currentID === projectID) return;
             for (const item of document.querySelectorAll(".project-item")){
@@ -126,18 +143,28 @@ export const loadPage = (logic) => {
             projectItem.classList.add("selected");
             setCurrentBox(project);
             populateTodos();
+        } 
+
+        projectItem.addEventListener("click", () => {
+            selectProject();
+        });
+        projectItem.tabIndex = 0;
+        projectItem.addEventListener("keydown", (e) => {
+            if (e.key != "Space" && e.key != "Enter") return;
+            selectProject();
         });
 
         appendChildren(projectItem, [name, count]);
         projectList.appendChild(projectItem);
+        
         return projectItem;
     }
 
     const updateCurrentCount = () => {
         let count = document.querySelector(".current-project .footer .todo-count");
-        let todoCount = logic.getTodoCount(logic.currentProject.id);
+        let todoCount = logic.getTodoCount(logic.current);
         count.innerText = `${todoCount} task${(todoCount == 1) ? "" : "s"}`;
-        let itemCount = document.querySelector(`[data-id="${logic.currentProject.id}"] .todo-count`);
+        let itemCount = document.querySelector(`[data-id="${logic.current}"] .todo-count`);
         itemCount.innerText = todoCount;
     };
 
@@ -145,9 +172,7 @@ export const loadPage = (logic) => {
         let name = document.querySelector(".current-project .name");
         name.innerText = project.name;
         let date = document.querySelector(".current-project .created");
-        date.innerText = project.created;
-        let summary = document.querySelector(".current-project .summary");
-        summary.innerText = project.summary;
+        date.innerText = `Created: ${project.created}`;
         let count = document.querySelector(".current-project .footer .todo-count");
         let todoCount = logic.getTodoCount(project.id);
         count.innerText = `${todoCount} task${(todoCount == 1) ? "" : "s"}`;
@@ -165,8 +190,6 @@ export const loadPage = (logic) => {
             heading.innerText = "Edit Project";
             let name = document.querySelector(".project-modal #project-name");
             name.value = project.name;
-            let desc = document.querySelector(".project-modal #project-summary");
-            desc.value = project.summary;
             projectModal.classList.add("edit");
             projectModal.showModal();
         });
@@ -182,7 +205,7 @@ export const loadPage = (logic) => {
                 return;
             }
             let name = document.querySelector(".delete-project .name");
-            name.innerText = logic.currentProject.name;
+            name.innerText = logic.getCurrentProject().name;
             deleteModal.showModal();
         });
         appendChildren(footer, [newEdit, newDel]);
@@ -202,17 +225,17 @@ export const loadPage = (logic) => {
     deleteConfirm.addEventListener("click", () => {
         let items = document.querySelectorAll(".project-item");
         for (const item of items){
-            if (item.dataset.id !== logic.currentProject.id) continue;
+            if (item.dataset.id !== logic.current) continue;
             item.remove();
             break;
         }
-        logic.deleteProject(logic.currentProject.id);
+        logic.deleteProject(logic.current);
         for (const item of items){
-            if (item.dataset.id !== logic.currentProject.id) continue;
+            if (item.dataset.id !== logic.current) continue;
             item.classList.add("selected");
             break;
         }
-        setCurrentBox(logic.currentProject);
+        setCurrentBox(logic.getCurrentProject());
         populateTodos();
         deleteModal.close();
     });
@@ -221,18 +244,11 @@ export const loadPage = (logic) => {
 
     const todoSearch = document.querySelector(".search.todos");
     todoSearch.addEventListener("input", () => {
-        let filter = todoSearch.value.trim();
-        for (const item of document.querySelectorAll(".todo-item")){
-            let name = document.querySelector(`[data-id="${item.dataset.id}"] .name`).innerText;
-            if (name.includes(filter)) 
-                item.classList.remove("filtered");
-            else
-                item.classList.add("filtered");
-        }
+        populateTodos();
     });
 
     const confirmTodo = document.querySelector(".todo-modal .confirm");
-    confirmTodo.addEventListener("click", () => {
+    confirmTodo.addEventListener("click", (e) => {
         let name = document.querySelector("#todo-title");
         let desc = document.querySelector("#todo-description");
         let date = document.querySelector("#todo-date");
@@ -244,11 +260,16 @@ export const loadPage = (logic) => {
             invalid = true;
             field.classList.add("required");
         }
-        if (invalid) return;
+
+        if (invalid) {
+            e.stopPropagation();
+            return;
+        }
   
         if (todoModal.classList.contains("create")){
             createTodoItem(name.value.trim(), desc.value.trim(), new Date(date.value), priority.value);
             updateCurrentCount();
+            populateTodos();
         } else
         if (todoModal.classList.contains("edit")){
             logic.editTodo(todoModal.dataset.editID, name.value.trim(),
@@ -264,14 +285,31 @@ export const loadPage = (logic) => {
             title.innerText = name.value.trim();
 
             let due = document.querySelector(`[data-id='${id}'] .todo-body .header .todo-info .date`);
-            due.innerText = format(date.valueAsDate, "MM/dd/yyyy");
+            due.innerText = generateTodoDateText(date.valueAsDate);
 
             let summary = document.querySelector(`[data-id='${id}'] .todo-body .description`);
             summary.innerText = desc.value.trim();         
-
+            if (desc.value.trim() === ""){
+                summary.innerText = "No description..."
+                summary.classList.add("no-desc");
+            }else
+                summary.classList.remove("no-desc");
         }
         todoModal.close();
     });
+
+    const generateTodoDateText = (dueDate) => {
+        const today = new Date();
+        const todoDate = new Date(dueDate);   
+        const daysLeftRaw = Math.abs(today - todoDate) / (1000*60*60*24)
+        const daysLeft = (today<todoDate) ? Math.ceil(daysLeftRaw) : Math.floor(daysLeftRaw); 
+        if (today.getFullYear() == todoDate.getFullYear()
+        && today.getMonth() == todoDate.getMonth()
+        && today.getDate() == todoDate.getDate())
+            return "Due today";
+        else
+            return `${daysLeft} day${(daysLeft==1)? "" : "s"} ${(today<todoDate) ? "left" : "ago"}`;
+    }
 
     const createTodoItem = (title, description, date, priority) => {
         let todo = logic.createTodo(title, description, date, priority);
@@ -284,7 +322,10 @@ export const loadPage = (logic) => {
         item.classList.add("todo-item");
         if (todo.status === Status.COMPLETE)
             item.classList.add("complete");
+
         item.dataset.id = todo.id;
+        const expanded = logic.expandedIDs.includes(todo.id)
+        if (expanded) item.classList.add("expanded");
         
         let bar = document.createElement("div");
         bar.classList.add("priority-bar", todo.priority);
@@ -297,19 +338,19 @@ export const loadPage = (logic) => {
 
         let info = document.createElement("div");
         info.classList.add("todo-info");
+        
         let name = document.createElement("p");
         name.classList.add("name");
         name.innerText = todo.title;
+
         let date = document.createElement("p");
         date.classList.add("date");
-        date.innerText = format(todo.due, "MM/dd/yyyy");
+        date.innerText = generateTodoDateText(todo.due);
     
         appendChildren(info, [name, date]);
 
-        let buttonsH = document.createElement("div");
-        buttonsH.classList.add("todo-buttons");
-        let buttonsD = document.createElement("div");
-        buttonsD.classList.add("todo-buttons");
+        let buttons = document.createElement("div");
+        buttons.classList.add("todo-buttons");
 
         for (const type of ["toggle", "edit", "move", "delete"]){
             let button = document.createElement("button");
@@ -329,25 +370,27 @@ export const loadPage = (logic) => {
                                 item.remove();
                         }
                     });
-                    buttonsH.appendChild(button);
+                    buttons.appendChild(button);
                     break;
                 case "edit":
                     button.addEventListener("click", () => {
                         todoModal.classList.add("edit");
                         todoModal.dataset.editID = todo.id;
                         let heading = document.querySelector(".todo-modal .heading");
-                        heading.innerText = "Edit Todo";
+                        heading.innerText = "Edit Task";
                         let name = document.querySelector("#todo-title");
                         name.value = todo.title;
                         let desc = document.querySelector("#todo-description");
                         desc.value = todo.description;
                         let date = document.querySelector("#todo-date");
-                        date.valueAsDate = todo.due;
+                        date.valueAsDate = new Date(todo.due);
+                        date.classList.remove("empty")
                         let priority = document.querySelector("#todo-priority");
                         priority.value = todo.priority;
+                        priority.classList.remove("empty");
                         todoModal.showModal();
                     });
-                    buttonsD.appendChild(button);
+                    buttons.appendChild(button);
                     break;
                 case "move":
                     button.addEventListener("click", () => {
@@ -357,73 +400,108 @@ export const loadPage = (logic) => {
                             otherModal.showModal();
                             return;
                         }
-                        let title = document.querySelector(".move-todo .todo-title");
-                        title.innerText = todo.title;
-                        let current = document.querySelector(".move-todo .project-name");
-                        current.innerHTML = logic.currentProject.name;
                         moveModal.showModal();
                         moveModal.dataset.todoID = todo.id;
                         let select = document.querySelector(".project-dropdown");
+                        const maxLen = 16;
                         for (const project of logic.projects){
-                            if (project === logic.currentProject) continue;
+                            if (project === logic.getCurrentProject()) continue;
                             let option = document.createElement("option");
                             option.innerText = project.name;
+                            if (project.name.length > maxLen)
+                                option.innerText = project.name.substring(0,maxLen-3) + "...";
                             option.value = project.id;
                             select.appendChild(option);
                         }
                     });
-                    buttonsD.appendChild(button);
+                    buttons.appendChild(button);
                     break;
                 case "delete":
                     button.addEventListener("click", () => {
                         logic.deleteTodo(todo.id);
-                        item.remove();
+                        populateTodos();
                         updateCurrentCount();
                     });
-                    buttonsH.appendChild(button);
+                    buttons.appendChild(button);
                     break;
             }            
         }
 
-        let details = document.createElement("div");
-        details.classList.add("details");
-
         let desc = document.createElement("p");
         desc.classList.add("description");
         desc.innerText = todo.description;
+        if (todo.description.trim() === ""){
+            desc.innerText = "No description..."
+            desc.classList.add("no-desc");
+        }else
+            desc.classList.remove("no-desc");
+            
 
-        appendChildren(header, [info, buttonsH]);
-        appendChildren(details, [desc, buttonsD]);
+        appendChildren(header, [info, buttons]);
 
-        appendChildren(body, [header, details]);
+        appendChildren(body, [header, desc]);
         appendChildren(item, [bar, body]);
 
-        info.addEventListener("click", () => {
-            if (item.classList.contains("expanded"))
-                item.classList.remove("expanded");
-            else
-                item.classList.add("expanded");
+        item.addEventListener("click", (event) => {
+            let buttonHit = false;
+            for (const button of buttons.children){
+                const rect = button.getBoundingClientRect();
+                const isClickOutside = (
+                    event.clientX < rect.left ||
+                    event.clientX > rect.right ||
+                    event.clientY < rect.top ||
+                    event.clientY > rect.bottom
+                );
+                if (!isClickOutside) {
+                    buttonHit = true;
+                    break;
+                }
+            }
+            if (buttonHit) return;
+            toggleTodoExpansion(item);
         });
 
-        desc.addEventListener("click", () => {
-            if (item.classList.contains("expanded"))
-                item.classList.remove("expanded");
-            else
-                item.classList.add("expanded");
-        });
+        item.tabIndex = 0;
+        item.addEventListener("keydown", (e) => {
+            e.stopPropagation();
+            if (e.key != "Space" && e.key != "Enter") return;
+            toggleTodoExpansion(item);
+        })
 
         const todoList = document.querySelector(".todo-list");
         todoList.appendChild(item);
         return item;
     };
 
+    const toggleTodoExpansion = (item) => {
+        if (item.classList.contains("expanded")){
+            item.classList.remove("expanded");
+            const index = logic.expandedIDs.indexOf(item.dataset.id);
+            logic.expandedIDs.splice(index, 1);
+        }
+        else{
+            item.classList.add("expanded");
+            logic.expandedIDs.push(item.dataset.id);
+        }
+        updateScrollBar();
+    }
+
     const populateTodos = () => {
         let todoItems = document.querySelectorAll(".todo-item");
         for (const todo of todoItems) todo.remove();
-        let todos = logic.todos.filter((todo) => {return todo.projectID === logic.currentProject.id})
+        let search = document.querySelector(".search.todos").value.trim().toLowerCase();
+        let todos = logic.todos.filter((todo) => {return todo.projectID === logic.current})
                                .filter((todo) => {return logic.filters.includes(todo.priority)
                                                       && logic.filters.includes(todo.status);})
+                               .filter((todo) => {return todo.title.includes(search)});
+        
         for (const todo of todos) createTodoItemUI(todo);
+        
+        let noTodo = document.querySelector(".no-todos");
+        if (todos.length > 0)
+            noTodo.classList.add("hidden");   
+        else
+            noTodo.classList.remove("hidden");
     };
 
     const clearModal = document.querySelector(".clear-todos.modal"); 
@@ -434,16 +512,19 @@ export const loadPage = (logic) => {
         for (const todo of document.querySelectorAll(".todo-item")){
             list.removeChild(todo);
         }
+        let noTodo = document.querySelector(".no-todos");
+        noTodo.classList.remove("hidden");
         updateCurrentCount();
         clearModal.close();
     });  
 
     const moveModal = document.querySelector(".move-todo");
     const confirmMove = document.querySelector(".move-todo .confirm");
-    confirmMove.addEventListener("click", () => {
+    confirmMove.addEventListener("click", (e) => {
         let targetBox = document.querySelector(".project-dropdown");
         if (targetBox.value === ""){
             targetBox.classList.add("required");
+            e.stopPropagation();
             return;
         }
         logic.moveTodo(moveModal.dataset.todoID, targetBox.value);
@@ -455,11 +536,16 @@ export const loadPage = (logic) => {
         moveModal.close();
     });
 
-    // add event handlers to create project, create todo, reset todos and clear todos
     const createProject = document.querySelector(".add-project");
     createProject.addEventListener("click", () => {
+        if (logic.projects.length === 8){
+            let message = document.querySelector(".other-message");
+            message.innerText = "You have reached the maximum project limit."
+            otherModal.showModal();
+            return;
+        }
         let heading = document.querySelector(".project-modal .heading");
-        heading.innerText = "Add New Project";
+        heading.innerText = "New Project";
         projectModal.classList.add("create");
         projectModal.showModal();
     });
@@ -467,7 +553,7 @@ export const loadPage = (logic) => {
     const createTodo = document.querySelector(".add-todo");
     createTodo.addEventListener("click", () => {
         let heading = document.querySelector(".todo-modal .heading");
-        heading.innerText = "Add New Todo";
+        heading.innerText = "New Task";
         todoModal.classList.add("create");
         todoModal.showModal();
     });
@@ -475,20 +561,17 @@ export const loadPage = (logic) => {
     const resetTodos = document.querySelector(".reset-todos");
     resetTodos.addEventListener("click", () => {
         logic.resetTodos();
-        for (const todo of document.querySelectorAll(".todo-item")){
-            todo.classList.remove("complete");
-        }
+        populateTodos();
     });
 
-    const clearTodos = document.querySelector(".clear-todos");
+    const clearTodos = document.querySelector(".delete-todos");
     clearTodos.addEventListener("click", () => {
-        if (!logic.todos.length) return;
+        if (!logic.getTodoCount(logic.getCurrentProject().id)) return;
         let name = document.querySelector(".clear-todos .name");
-        name.innerText = logic.currentProject.name;
+        name.innerText = logic.getCurrentProject().name;
         clearModal.showModal();
     });
 
-    // add event listeners to filter bar button
     const low = document.querySelector(".filter-button.low");
     low.addEventListener("click", () => {
         if (logic.filters.includes(Priority.LOW)){
@@ -549,11 +632,29 @@ export const loadPage = (logic) => {
         populateTodos();
     });
 
-    // load projects, todos and filters from logic handler
+    const todoList = document.querySelector(".todo-list");
+    todoList.classList.add("scroll-top");
+    todoList.addEventListener("scroll", () => {
+        updateScrollBar();
+    });
+
+    const updateScrollBar = () => {
+        const top = todoList.scrollTop;
+        if (top <= 7)
+            todoList.classList.add("scroll-top");
+        else
+            todoList.classList.remove("scroll-top");
+
+        if (top + todoList.clientHeight >= todoList.scrollHeight-8)
+            todoList.classList.add("scroll-bottom");
+        else
+            todoList.classList.remove("scroll-bottom");
+    }; 
+
     for (const project of logic.projects){
         createProjectItemUI(project);
     }
-    let current = logic.currentProject;
+    let current = logic.getCurrentProject();
     setCurrentBox(current);
     for (const item of document.querySelectorAll(".project-item")){
         if (item.dataset.id !== current.id) continue;

@@ -3,104 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Task Manager</title>
 </head>
 <body>
-    <header>TODO</header>
-    <div class="container">
-        <section class="projects">
-            <div class="project-tab">
+    <div class="body">
+        <header>TASK MANAGER</header>
+        <div class="container">
+            <section class="projects">
                 <div class="current-project">
-                    <p class="name">Default Project</p>
-                    <p class="created">08/29/2026</p>
-                    <p class="summary">A simple project to get you started. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quas, natus id aut sed vel molestias debitis neque quidem.</p>
+                    <div class="header">
+                        <p class="name"></p>
+                        <p class="created"></p>
+                    </div>
                     <div class="footer">
-                        <p class="todo-count">2 tasks</p>
-                        <button class="edit">Edit</button>
-                        <button class="delete">Delete</button>
+                        <p class="todo-count"></p>
+                        <button class="edit"></button>
+                        <button class="delete"></button>
                     </div>
                 </div>
                 <input type="text" class="search projects" placeholder="Search projects...">
-                <div class="project-list"></div>
-            </div>
-            <button class="add-project">Add Project</button>
-        </section>
-        <section class="todos">
-            <div class="filter-bar">
-                <div class="filter-buttons">
-                    <button class="filter-button priority low active" data-filter="low">Low</button>
-                    <button class="filter-button priority mid active" data-filter="mid">Mid</button>
-                    <button class="filter-button priority high active" data-filter="high">High</button>
-                    <button class="filter-button status incomplete active" data-filter="incomplete">Not Done</button>
-                    <button class="filter-button status complete active" data-filter="complete">Done</button>
+                <div class="project-list"></div>         
+                <button class="add-project">New Project</button>
+            </section>
+            <section class="todos">
+                <div class="filter-bar">
+                    <div class="filter-buttons">
+                        <button class="filter-button priority low active" data-filter="low">LOW</button>
+                        <button class="filter-button priority mid active" data-filter="mid">MID</button>
+                        <button class="filter-button priority high active" data-filter="high">HIGH</button>
+                        <button class="filter-button status incomplete active" data-filter="incomplete">UNDONE</button>
+                        <button class="filter-button status complete active" data-filter="complete">DONE</button>
+                    </div>
+                    <input type="text" class="search todos" placeholder="Search tasks...">
                 </div>
-                <input type="text" class="search todos" placeholder="Search todos...">
-            </div>
-            <div class="todo-list"></div>
-            <div class="footer">
-                <button class="add-todo">Add Todo</button>
-                <button class="reset-todos">Reset Todos</button>
-                <button class="clear-todos">Delete All</button>
-            </div>
-        </section>
+                <div class="todo-list">
+                    <div class="no-todos">
+                        <p>NO TASKS...</p>
+                    </div>
+                </div>
+                <div class="footer">
+                    <button class="add-todo">Add Task</button>
+                    <button class="reset-todos">Reset Tasks</button>
+                    <button class="delete-todos">Delete All</button>
+                </div>
+            </section>
+        </div>
     </div>
     <dialog class="project-modal modal">
         <p class="heading">Add New Project</p>
-        <label for="project-name" class="modal-label">Name
-            <input type="text" id="project-name" class="modal-input"  placeholder="Enter project name...">
-        </label>
-        <label for="project-summary" class="modal-label">Description
-            <input type="text" id="project-summary" class="modal-input"  placeholder="Enter project description...">
-        </label>
+            <input type="text" id="project-name" class="modal-input"  placeholder="Enter project name..." maxlength="20">
         <button class="confirm">Confirm</button>
     </dialog>
     <dialog class="delete-project modal">
-        <p>Are you sure you want to delete </p>
-        <p class="name">default</p>
-        <p> and all of its tasks?</p>
+        <p>Delete <span class="name"></span> and all its tasks?</p>
         <div class="buttons">
-            <button class="just-close">Cancel</button>
             <button class="delete">Delete</button>
+            <button class="just-close">Cancel</button>
         </div>
     </dialog>
     <dialog class="todo-modal modal">
         <p class="heading">Edit Todo</p>
-        <label for="todo-title"class="modal-label">Title
-            <input type="text" id="todo-title" class="modal-input" placeholder="Enter todo name...">
-        </label>
-        <label for="todo-description" class="modal-label">Description
-            <input type="text" id="todo-description" class="modal-input" placeholder="Enter todo description...">
-        </label>
-        <label for="todo-date" class="modal-label">Due Date
-            <input type="date" id="todo-date" class="modal-input">
-        </label>
-        <label for="todo-priority" class="modal-label">Priority
-            <select id="todo-priority" class="modal-input">
-                <option value="" selected disabled hidden></option>
-                <option value="low">Low</option>
-                <option value="mid">Mid</option>
-                <option value="high">High</option>
-            </select>
-        </label>
+        <input type="text" id="todo-title" class="modal-input" placeholder="Enter todo name..." maxlength="30">
+        <textarea id="todo-description" class="modal-input" placeholder="Enter todo description..." rows="5" cols="40" maxlength="195"></textarea>
+        <input type="date" id="todo-date" class="modal-input empty">
+        <select id="todo-priority" class="modal-input empty">
+            <option value="" selected disabled hidden>Select todo priority</option>
+            <option value="low">Low</option>
+            <option value="mid">Mid</option>
+            <option value="high">High</option>
+        </select>
         <button class="confirm">Confirm</button>
     </dialog>
     <dialog class="move-todo modal">
-        <p>Move</p>
-        <p class="todo-title"></p>
-        <p>From</p>
-        <p class="project-name"></p>
-        <p>To</p>
-        <select class="project-dropdown modal-input">
-            <option value="" selected disabled hidden></option>
+        <p class="heading">Move Task</p>
+        <select class="project-dropdown modal-input empty">
+            <option value="" selected disabled hidden>Select target project</option>
         </select>
         <button class="confirm">Confirm</button>
     </dialog>
     <dialog class="clear-todos modal">
-        <p>Are you sure you want to delete all tasks in</p>
-        <p class="name">default</p>
+        <p>Delete all tasks in <span class="name"></span>?</p>
         <div class="buttons">
-            <button class="just-close">Cancel</button>
             <button class="delete">Delete</button>
+            <button class="just-close">Cancel</button>
         </div>
     </dialog>
     <dialog class="other modal">

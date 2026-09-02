@@ -10,17 +10,17 @@ const Todo = (title, description, due, priority, projectID) => {
     };
 };
 
-const Project = (name, summary) => {
-    return {name, summary,
-        created: format(new Date(), "MM/dd/yyyy"),
+const Project = (name) => {
+    return {name,
+        created: format(new Date(), "do MMM yyyy"),
         id: crypto.randomUUID()
     };
 };
 
 export class LogicHandler {    
     constructor () {
-        // localStorage.clear();
         this.init();
+        this.expandedIDs = [];
     }
 
     storageFree = () => {
@@ -45,16 +45,16 @@ export class LogicHandler {
         if (!this.storageFree()) return;
         if (localStorage.getItem("projects")){
             console.log("load")
-            this.loadData("projects", "todos", "filters", "currentProject");
+            this.loadData("projects", "todos", "filters", "current");
         }else{
             console.log("new");
             this.projects = [];
-            this.currentProject = this.createProject("default", "Generic summary");
+            this.current = this.createProject("default").id;
             this.todos = [];
             this.filters = [...Object.values(Priority), ...Object.values(Status)];
 
-            this.createTodo("examle task", "this is a basic example todo.", new Date(), Priority.LOW);
-            this.saveData("projects", "todos", "filters", "currentProject");
+            this.createTodo("example task", "this is a basic example todo.", new Date(), Priority.LOW);
+            this.saveData("projects", "todos", "filters", "current");
         }
     }
 
@@ -70,8 +70,8 @@ export class LogicHandler {
         }
     }
 
-    createProject = (name, summary) => {
-        const project = Project(name, summary);
+    createProject = (name) => {
+        const project = Project(name);
         this.projects.push(project);
         this.saveData("projects");
         return project;
@@ -83,18 +83,16 @@ export class LogicHandler {
             const index = this.projects.indexOf(project);
             this.projects.splice(index, 1);
             this.todos = this.todos.filter((todo) => {return todo.projectID !== projectID});
-            if (this.currentProject === project) 
-                this.currentProject = this.projects[0];
+            this.current = this.projects[0].id;
             break;
         }
-        this.saveData("projects", "currentProject");
+        this.saveData("projects", "current");
     }
 
-    editProject = (projectID, name, summary) => {
+    editProject = (name) => {
         for (const project of this.projects){
-            if (projectID !== project.id) continue;
+            if (project.id !== this.current) continue;
             project.name = name;
-            project.summary = summary;
             break;
         }
         this.saveData("projects");
@@ -103,11 +101,18 @@ export class LogicHandler {
     selectProject = (projectID) => {
         for (const project of this.projects){
             if (projectID !== project.id) continue;
-            if (project === this.currentProject) return;
-            this.currentProject = project;
+            if (project.id === this.current) return;
+            this.current = project.id;
             break;
         }
-        this.saveData("currentProject");
+        this.saveData("current");
+    }
+
+    getCurrentProject = () => {
+        for (const project of this.projects){
+            if (project.id !== this.current) continue;
+            return project;
+        }
     }
 
     getTodoCount = (projectID) => {
@@ -120,7 +125,7 @@ export class LogicHandler {
     }
 
     createTodo = (title, description, dueDate, priority) => {
-        const todo = Todo(title, description, dueDate, priority, this.currentProject.id);
+        const todo = Todo(title, description, dueDate, priority, this.current);
         this.todos.push(todo);
         this.saveData("todos");
         return todo
@@ -161,11 +166,9 @@ export class LogicHandler {
         for (const todo of this.todos){
             if (todoID !== todo.id) continue;
             todo.projectID = targetID;
-            console.log("here");
             break;
         }
         this.saveData("todos");
-        console.log(this.todos);
     }
 
     validateTodo = (todoID, filter) => {
@@ -180,15 +183,14 @@ export class LogicHandler {
 
     resetTodos = () => {
         for (const todo of this.todos){
-            if (todo.projectID !== this.currentProject.id) continue;
+            if (todo.projectID !== this.current) continue;
             todo.status = Status.INCOMPLETE;
-            break;
         }
         this.saveData("todos");
     }
 
     clearTodos = () => {
-        this.todos = this.todos.filter((todo) => {return todo.projectID !== this.currentProject.id});
+        this.todos = this.todos.filter((todo) => {return todo.projectID !== this.current});
         this.saveData("todos");
     }
 
