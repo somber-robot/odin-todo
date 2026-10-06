@@ -82,7 +82,11 @@ export class LogicHandler {
   loadData = (...types) => {
     for (const type of types) {
       if (type === "current") this[type] = localStorage[type];
-      else this[type] = JSON.parse(localStorage[type]);
+      else
+        this[type] =
+          JSON.parse(localStorage[type]) || type === "filter"
+            ? [...Object.values(Priority), ...Object.values(Status)]
+            : [];
     }
   };
 
@@ -154,7 +158,7 @@ export class LogicHandler {
       if (todoID !== todo.id) continue;
       todo.title = title;
       todo.description = description;
-      todo.due = dueDate;
+      todo.due = dueDate instanceof Date ? dueDate.toISOString() : dueDate;
       todo.priority = priority;
       break;
     }
