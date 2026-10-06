@@ -10,7 +10,7 @@ const Todo = (title, description, due, priority, projectID) => {
   return {
     title,
     description,
-    due,
+    due: due instanceof Date ? due.toISOString() : due,
     priority,
     projectID,
     status: Status.INCOMPLETE,
@@ -74,13 +74,15 @@ export class LogicHandler {
 
   saveData = (...types) => {
     for (const type of types) {
-      localStorage[type] = JSON.stringify(this[type]);
+      if (type === "current") localStorage[type] = this[type];
+      else localStorage[type] = JSON.stringify(this[type]);
     }
   };
 
   loadData = (...types) => {
     for (const type of types) {
-      this[type] = JSON.parse(localStorage[type]);
+      if (type === "current") this[type] = localStorage[type];
+      else this[type] = JSON.parse(localStorage[type]);
     }
   };
 
